@@ -11,3 +11,6 @@ Original code from cse167 @ ucsd HW3 (2022 Fall)
 - RayThruPixel
 - FindColor
 - RayTrace
+
+## Question:
+- The ray parameter d is the ray direction. Is "direction of source to the incoming ray" in intersection class the same as ray direction?
