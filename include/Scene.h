@@ -31,6 +31,14 @@ public:
     std::vector< glm::mat4 > modeltransforms;
 };
 
+class Triangle {
+public:
+    // vertex position of a triangle
+    std::vector<glm::vec4> pos(3, glm::vec3( 0.0f, 0.0f, 0.0f, 1.0f ));
+    std::vector<glm::vec3> normal(3, glm::vec3( 0.0f, 0.0f, 0.0f )); // normalized vertex of a triangle
+    Material* material; // pointer to triangle matetial
+}
+
 class Scene {
 public:
     Camera* camera;
@@ -44,6 +52,9 @@ public:
     
     // The container of nodes will be the scene graph after we connect the nodes by setting the child_nodes.
     std::map< std::string, Node* > node;
+
+    // triangle soup (pointer or obj?)
+    std::vector<Triangle> tri_soup;
     
     Scene(){
         // the default scene graph already has one node named "world."

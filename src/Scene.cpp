@@ -13,17 +13,17 @@ using namespace glm;
 void Scene::draw(void){
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera -> computeMatrices();
-    shader -> view = camera -> view;
-    shader -> projection = camera -> proj;
-    shader -> nlights = light.size();
-    shader -> lightpositions.resize( shader -> nlights );
-    shader -> lightcolors.resize( shader -> nlights );
-    int count = 0;
-    for (std::pair<std::string, Light*> entry : light){
-        shader -> lightpositions[ count ] = (entry.second) -> position;
-        shader -> lightcolors[ count ] = (entry.second) -> color;
-        count++;
-    }
+    // shader -> view = camera -> view;
+    // shader -> projection = camera -> proj;
+    // shader -> nlights = light.size();
+    // shader -> lightpositions.resize( shader -> nlights );
+    // shader -> lightcolors.resize( shader -> nlights );
+    // int count = 0;
+    // for (std::pair<std::string, Light*> entry : light){
+    //     shader -> lightpositions[ count ] = (entry.second) -> position;
+    //     shader -> lightcolors[ count ] = (entry.second) -> color;
+    //     count++;
+    // }
     
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
@@ -71,32 +71,29 @@ void Scene::draw(void){
         for ( size_t i = 0; i < cur -> models.size(); i++ ){
             // Prepare to draw the geometry. Assign the modelview and the material.
             
-            /**
-             * TODO: (HW3 hint: you should do something here)
-             * update corresponding VM
-             */
+            // update corresponding VM
             glm::mat4 new_VM = cur_VM * cur-> modeltransforms[i];
             shader -> modelview = new_VM; // TODO: HW3: Without updating cur_VM, modelview would just be camera's view matrix.
             shader -> material  = ( cur -> models[i] ) -> material;
             
             // The draw command
             shader -> setUniforms();
-            ( cur -> models[i] ) -> geometry -> draw();
+            
+            //( cur -> models[i] ) -> geometry -> draw();
+            // From model to triangle
+            // Add triangle to the triangle soup
+            Triangle * tri = 
         }
         
         // Continue the DFS: put all the child nodes of the current node in the stack
         for ( size_t i = 0; i < cur -> childnodes.size(); i++ ){
             dfs_stack.push( cur -> childnodes[i] );
-            /**
-             * TODO: (HW3 hint: you should do something here)
-             * push vm corresponding to the childnode to vm stack
-             */
+      
+            // push vm corresponding to the childnode to vm stack
             matrix_stack.push(cur_VM * cur -> childtransforms[i]);
         }
         
     } // End of DFS while loop.
-    // HW3: Your code will only be above this line.
-    
 }
 
 
