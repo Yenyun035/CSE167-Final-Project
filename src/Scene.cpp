@@ -82,7 +82,7 @@ void Scene::draw(void){
             //( cur -> models[i] ) -> geometry -> draw();
             // From model to triangle
             // Add triangle to the triangle soup
-            Triangle * tri = 
+            Triangle * tri = ;
         }
         
         // Continue the DFS: put all the child nodes of the current node in the stack

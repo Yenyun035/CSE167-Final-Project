@@ -15,6 +15,9 @@ public:
 
     virtual void init(){};
     Intersection Intersect(Ray ray, Scene scene);
+
+private:
+    Intersection Intersect(Ray ray, Triangle tri);
 };
 
 #endif 
