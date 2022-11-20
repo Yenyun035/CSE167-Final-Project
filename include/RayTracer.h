@@ -6,6 +6,9 @@
 #include "Triangle.h"
 #include <glm/glm.hpp>
 
+#ifndef __RAYTRACER_H__
+#define __RAYTRACER_H_
+
 namespace RayTracer {
     void Raytrace(Camera cam, RTScene scene, Image &image); //page 9
     Ray RayThruPixel(Camera cam, int i, int j, int width, int height);//page 10, 18
@@ -13,3 +16,5 @@ namespace RayTracer {
     Intersection Intersect(Ray ray, RTScene scene); //page 11, 28, 31
     glm::vec3 FindColor(Intersection hit, int recursion_depth); //page 15
 };
+
+#endif
