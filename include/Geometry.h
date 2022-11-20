@@ -25,24 +25,14 @@ arrays of unknown size.
 #include <vector>
 #include <glm/glm.hpp>
 #include "Material.h"
+#include "Triangle.h"
 
 #ifndef __GEOMETRY_H__
 #define __GEOMETRY_H__
 
 using namespace glm;
 
-class Triangle {
-public:
-    // vertex position of a triangle
-    std::vector<glm::vec4> pos;
-    std::vector<glm::vec3> normal; // normalized vertex of a triangle
-    Material* material; // pointer to triangle matetial
 
-    Triangle() {
-      pos = std::vector<glm::vec4>(3, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-      normal = std::vector<glm::vec3>(3, glm::vec3(0.0f, 0.0f, 0.0f));
-    }
-};
 
 class Geometry {
 public:

@@ -13,17 +13,17 @@ using namespace glm;
 void Scene::draw(void){
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera -> computeMatrices();
-    // shader -> view = camera -> view;
-    // shader -> projection = camera -> proj;
-    // shader -> nlights = light.size();
-    // shader -> lightpositions.resize( shader -> nlights );
-    // shader -> lightcolors.resize( shader -> nlights );
-    // int count = 0;
-    // for (std::pair<std::string, Light*> entry : light){
-    //     shader -> lightpositions[ count ] = (entry.second) -> position;
-    //     shader -> lightcolors[ count ] = (entry.second) -> color;
-    //     count++;
-    // }
+    shader -> view = camera -> view;
+    shader -> projection = camera -> proj;
+    shader -> nlights = light.size();
+    shader -> lightpositions.resize( shader -> nlights );
+    shader -> lightcolors.resize( shader -> nlights );
+    int count = 0;
+    for (std::pair<std::string, Light*> entry : light){
+        shader -> lightpositions[ count ] = (entry.second) -> position;
+        shader -> lightcolors[ count ] = (entry.second) -> color;
+        count++;
+    }
     
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
@@ -78,11 +78,7 @@ void Scene::draw(void){
             
             // The draw command
             shader -> setUniforms();
-            
-            //( cur -> models[i] ) -> geometry -> draw();
-            // From model to triangle
-            // Add triangle to the triangle soup
-            Triangle * tri = ;
+            ( cur -> models[i] ) -> geometry -> draw();
         }
         
         // Continue the DFS: put all the child nodes of the current node in the stack

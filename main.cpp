@@ -13,14 +13,15 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include "Screenshot.h"
-#include "Scene.h"
-
+#include "RTScene.h"
+#include "Image.h"
 
 static const int width = 800;
 static const int height = 600;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
-static Scene scene;
+static RTScene scene;
+static Image image(width, height);
 
 #include "hw3AutoScreenshots.h"
 
@@ -34,7 +35,7 @@ void printHelp(){
       press 'A'/'Z' to zoom.
       press 'R' to reset camera.
       press 'L' to turn on/off the lighting.
-    
+      press 'P' to impose image as a texture.
       press Spacebar to generate images for hw3 submission.
     
 )";
@@ -47,6 +48,7 @@ void initialize(void){
     
     // Initialize scene
     scene.init();
+    image.init();
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -55,11 +57,11 @@ void initialize(void){
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
-    scene.draw();
+    //scene.draw();
+    image.draw();
     
     glutSwapBuffers();
     glFlush();
-    
 }
 
 void saveScreenShot(const char* filename = "test.png"){
@@ -99,6 +101,11 @@ void keyboard(unsigned char key, int x, int y){
             break;
         case ' ':
             hw3AutoScreenshots();
+            glutPostRedisplay();
+            break;
+        case 'p':
+            // add color to pixel - TODO: for test, not yet implemented
+            // display
             glutPostRedisplay();
             break;
         default:
