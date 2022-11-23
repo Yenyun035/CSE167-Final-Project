@@ -76,7 +76,6 @@ void RTObj::init(const char * filename){
         vertices[i] = temp_vertices[ temp_vertexIndices[i] - 1 ];
         normals[i] = temp_normals[ temp_normalIndices[i] - 1 ];
     }
-    std::cout << "done." << std::endl;
     
     // fill in triangle soup
     for(int i = 0; i < indices.size(); i+=3) {
@@ -94,8 +93,10 @@ void RTObj::init(const char * filename){
         tri.normal[1] = normals[i1];
         tri.normal[2] = normals[i2];
         
-        elements[i] = tri;
+        elements.push_back(tri);
     }
+
+    std::cout << "done." << std::endl;
 }
 
 

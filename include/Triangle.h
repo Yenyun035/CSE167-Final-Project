@@ -8,7 +8,7 @@
 struct Triangle {
     std::vector<glm::vec3> pos; // 3 positions //vec before
     std::vector<glm::vec3> normal; // 3 normals
-    Material* material = NULL;
+    Material* material;
 };
 
 #endif

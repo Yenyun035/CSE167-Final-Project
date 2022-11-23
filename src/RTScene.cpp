@@ -4,6 +4,7 @@ Scene.cpp contains the implementation of the draw command
 #include "RTScene.h"
 #include "RTCube.h"
 #include "RTObj.h"
+#include "RayTracer.h"
 
 // The scene init definition 
 #include "RTScene.inl"

@@ -15,6 +15,7 @@
 #include "Screenshot.h"
 #include "RTScene.h"
 #include "Image.h"
+#include "RayTracer.h"
 
 static const int width = 800;
 static const int height = 600;
@@ -104,8 +105,7 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'p':
-            // add color to pixel - TODO: for test, not yet implemented
-            // display
+            RayTracer::Raytrace(*(scene.camera), scene, image);
             glutPostRedisplay();
             break;
         default:

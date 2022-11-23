@@ -166,28 +166,47 @@ namespace RayTracer {
         //}
         return 0;*/
     
-        // add emission E first
-        glm::vec4 color = hit.tri->material->emision;
-        
-        for(std::pair<std::string,Light*> entry: scene.light) {
-            Light* light = entry.second;
-            // transform light position to camera coord
-            glm::vec4 cLightPos = scene.camera->view * light->position;
+        //find distance
+        if (hit.dist < std::numeric_limits<float>::max()) {
+                
 
-            // l vector
-            glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
+            // add emission E first. TODO, keep getting error for material->emision
+            // glm::vec4 color = hit.tri->material->emision;
+            if (!(hit.tri->material)) {
+                std::cout << "material NULL pointer";
+            }
+            
+            glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-            // v vector = -p
-            glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
+            for(std::pair<std::string,Light*> entry: scene.light) {
+                Light* light = entry.second;
+                // transform light position to camera coord
+                glm::vec4 cLightPos = scene.camera->view * light->position;
 
-            // h vector
-            glm::vec3 h = normalize(v + l);
+                // l vector
+                glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
 
-            color += light->color * (hit.tri->material->ambient 
-                  + hit.tri->material->diffuse * std::max(glm::dot(hit.surface_normal,l), 0.0f) 
-                  + hit.tri->material->specular * pow(std::max(glm::dot(hit.surface_normal,h), 0.0f),  hit.tri->material->shininess));
+                // v vector = -p
+                glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
+
+                // h vector
+                glm::vec3 h = normalize(v + l);
+
+                glm::vec4 C = hit.tri->material->ambient;
+
+                glm::vec4 diffuse = hit.tri->material->diffuse;
+                float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
+                C += glm::vec4(diffuse.x * diffsca, diffuse.y * diffsca, diffuse.z * diffsca, diffuse.w * diffsca);
+                
+                glm::vec4 specular = hit.tri->material->specular;
+                float specsca = pow(std::max(glm::dot(hit.surface_normal,h), 0.0f),  hit.tri->material->shininess);
+                C += glm::vec4(specular.x*specsca, specular.y*specsca, specular.z*specsca, specular.w*specsca);
+                
+                color += glm::vec4(light->color.x * C.x, light->color.y * C.y, light->color.z * C.z, light->color.w * C.w);
+            }
+
+            return color;
         }
-
-        return color;
+        return glm::vec3(0.0f,0.0f,0.0f);
     } //page 15
 };

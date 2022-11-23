@@ -62,7 +62,7 @@ public:
                 tri.normal[j] = glm::vec3(normals[idx][0],normals[idx][1],normals[idx][2]);
             }
             
-            elements[i] = tri;
+            elements.push_back(tri);
         }
     }    
 };
