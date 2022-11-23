@@ -7,7 +7,7 @@ a class for intersection information
 
 class Intersection {
 public:
-    glm::vec3 intsec_pos;
+    glm::vec3 intsec_pos; // i j k
     glm::vec3 surface_normal;
     glm::vec3 inr_d;
     Triangle * tri;
