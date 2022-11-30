@@ -10,13 +10,14 @@
 namespace RayTracer {
     
     void Raytrace(Camera cam, RTScene scene, Image &image){
-        int w = image.width; int h = image.height;
+        int w = image.width;
+        int h = image.height;
         int sample_num = 3;
         int rec = 1;
         float inv_sam = 1.0f / sample_num;
 
-        for (int j = 0; j < h; j++){
-            for (int i = 0; i < w; i++){
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
                 glm::vec3 sum_color = glm::vec3(0.0f, 0.0f, 0.0f);
                 
                 for (int k = 0; k < sample_num; k++) {
@@ -130,12 +131,11 @@ namespace RayTracer {
                 glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
 
                 // diffuse * max(n.l, 0)
-                glm::vec4 diffuse = hit.tri->material->diffuse;
                 float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
-                diffuse = glm::vec4(diffuse.x * diffsca, diffuse.y * diffsca, diffuse.z * diffsca, diffuse.w * diffsca);
+                glm::vec4 diffuse = diffsca *  hit.tri->material->diffuse;
 
                 // diffuse * max(n.l, 0) * vis
-                light_sum += glm::vec4(light->color.x * diffuse.x * vis, light->color.y * diffuse.y * vis, light->color.z * diffuse.z * vis, light->color.w * diffuse.w * vis);
+                light_sum += vis * glm::vec4(light->color.x * diffuse.x, light->color.y * diffuse.y, light->color.z * diffuse.z, light->color.w * diffuse.w);
             }
             
             return glm::vec3(light_sum);
@@ -161,14 +161,13 @@ namespace RayTracer {
                 glm::vec4 dif = hit.tri->material->diffuse; // C_diffuse
                 float nd = glm::dot(hit.surface_normal, d_ray2); // n.d 
 
-                glm::vec3 l_seen = glm::vec4(dif.x * dif_color.x * nd, dif.y * dif_color.y * nd, dif.z * dif_color.z * nd);
+                glm::vec3 l_seen = nd * glm::vec4(dif.x * dif_color.x, dif.y * dif_color.y, dif.z * dif_color.z);
                             
                 return l_seen;
             } else { //specular
                 // reflection vector r
                 float twoNV = 2 * glm::dot(hit.surface_normal, hit.inr_d);
-                glm::vec3 n = hit.surface_normal;
-                glm::vec3 r =  glm::vec3(twoNV * n.x, twoNV * n.y, twoNV * n.z) - hit.inr_d;
+                glm::vec3 r =  twoNV * hit.surface_normal - hit.inr_d;
 
                 Ray ray_ref;
                 ray_ref.p0 = hit.intsec_pos;
@@ -210,13 +209,11 @@ namespace RayTracer {
 
                 glm::vec4 C = hit.tri->material->ambient;
 
-                glm::vec4 diffuse = hit.tri->material->diffuse;
                 float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
-                C += glm::vec4(diffuse.x * diffsca, diffuse.y * diffsca, diffuse.z * diffsca, diffuse.w * diffsca);
+                C += diffsca * hit.tri->material->diffuse;
                 
-                glm::vec4 specular = hit.tri->material->specular;
                 float specsca = pow(std::max(glm::dot(hit.surface_normal,h), 0.0f),  hit.tri->material->shininess);
-                C += glm::vec4(specular.x*specsca, specular.y*specsca, specular.z*specsca, specular.w*specsca);
+                C += specsca * hit.tri->material->specular;
                 
                 color += glm::vec4(light->color.x * C.x, light->color.y * C.y, light->color.z * C.z, light->color.w * C.w);
             }
