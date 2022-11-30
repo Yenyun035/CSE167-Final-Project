@@ -63,6 +63,7 @@ public:
             }
             
             elements.push_back(tri);
+            count++;
         }
     }    
 };

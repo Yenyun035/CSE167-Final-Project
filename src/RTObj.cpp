@@ -94,6 +94,7 @@ void RTObj::init(const char * filename){
         tri.normal[2] = normals[i2];
         
         elements.push_back(tri);
+        count++;
     }
 
     std::cout << "done." << std::endl;

@@ -205,7 +205,7 @@ namespace RayTracer {
                 color += glm::vec4(light->color.x * C.x, light->color.y * C.y, light->color.z * C.z, light->color.w * C.w);
             }
 
-            return color;
+            return glm::vec3(color);
         }
         return glm::vec3(0.0f,0.0f,0.0f);
     } //page 15

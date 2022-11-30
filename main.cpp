@@ -49,6 +49,7 @@ void initialize(void){
     
     // Initialize scene
     scene.init();
+    scene.buildTriangleSoup();
     image.init();
 
     // Enable depth test
