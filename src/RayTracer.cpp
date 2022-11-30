@@ -28,8 +28,6 @@ namespace RayTracer {
                 }
             
                 image.pixels[j * w + i] = inv_sam * sum_color;
-
-                // std::cout << "Sampling (" << i << ", " << j << ") ended -> color = (" << image.pixels[j * w + i][0] << image.pixels[j * w + i][1] << image.pixels[j * w + i][2] << ")" << std::endl;
             }
         }
 
@@ -97,16 +95,11 @@ namespace RayTracer {
         for(Triangle tri : scene->triangle_soup){
             // Find closest intersection; test all triangles
             Intersection hit_temp = Intersect(ray, &tri);
-
-            // std::cout << "Intersect -> hit distance: " << hit_temp.dist << std::endl;
             
             // closer than previous hit
             if (hit_temp.dist < mindist) {
                 mindist = hit_temp.dist;
                 hit = hit_temp;
-
-                // std::cout << "Update hit" << std::endl;
-                // std::cout << "Intersect -> hit distance = " << hit.dist << " | hit_temp = " << hit_temp.dist << std::endl;
             }
         }
 
@@ -192,8 +185,6 @@ namespace RayTracer {
 
         */
 
-        //std::cout << "hit.dist = " << hit.dist << std::endl;
-
         //find distance
         if (hit.dist < INF_DIST) {
             if (!(hit.tri->material)) {
@@ -233,7 +224,6 @@ namespace RayTracer {
             return glm::vec3(color);
         }
 
-        //std::cout << "Dist infinity" << std::endl;
         return glm::vec3(0.0f,0.0f,0.0f);
     }; //page 15
 };
