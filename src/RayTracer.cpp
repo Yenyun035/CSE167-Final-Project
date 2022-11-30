@@ -11,9 +11,9 @@ namespace RayTracer {
     
     void Raytrace(Camera cam, RTScene scene, Image &image){
         int w = image.width; int h = image.height;
-        int sample_num = 10;
+        int sample_num = 3;
         int rec = 1;
-        float inv_sam = 1 / sample_num;
+        float inv_sam = 1.0f / sample_num;
 
         for (int j = 0; j < h; j++){
             for (int i = 0; i < w; i++){
@@ -29,9 +29,11 @@ namespace RayTracer {
             
                 image.pixels[j * w + i] = inv_sam * sum_color;
 
-                std::cout << "Sampling (" << i << ", " << j << ") ended -> color = (" << image.pixels[j * w + i][0] << image.pixels[j * w + i][1] << image.pixels[j * w + i][2] << ")" << std::endl;
+                // std::cout << "Sampling (" << i << ", " << j << ") ended -> color = (" << image.pixels[j * w + i][0] << image.pixels[j * w + i][1] << image.pixels[j * w + i][2] << ")" << std::endl;
             }
         }
+
+        std::cout << "Ray Tracing completed" << std::endl;
     };
 
     Ray RayThruPixel(Camera cam, float i, float j, int width, int height) {
@@ -52,9 +54,8 @@ namespace RayTracer {
         return ray;
     };
 
-    //TODO intersection struct or class? how to initialize?
-    Intersection Intersect(Ray ray, Triangle tri) {
-        glm::vec3 p1 = tri.pos[0], p2 = tri.pos[1], p3 = tri.pos[2];
+    Intersection Intersect(Ray ray, Triangle * tri) {
+        glm::vec3 p1 = tri->pos[0], p2 = tri->pos[1], p3 = tri->pos[2];
         glm::vec3 d = ray.d, p0 = ray.p0;
         
         glm::mat4 m;
@@ -72,19 +73,18 @@ namespace RayTracer {
             inter.intsec_pos = glm::vec3(lamdaT.x * p1 + lamdaT.y * p2 + lamdaT.z * p3);
             
             // vector normal to q
-            inter.surface_normal = glm::normalize(glm::vec3(lamdaT.x * tri.normal[0] 
-                                    + lamdaT.y * tri.normal[1] + lamdaT.z * tri.normal[2]));
+            inter.surface_normal = glm::normalize(glm::vec3(lamdaT.x * tri->normal[0] 
+                                    + lamdaT.y * tri->normal[1] + lamdaT.z * tri->normal[2]));
             // incoming ray direction
-            inter.inr_d = d; // d or -d
+            inter.inr_d = -d;
 
             // pointer to the triangle
-            inter.tri = &tri;
+            inter.tri = tri;
             
             // t, i.e distance to ray
             inter.dist = lamdaT.w;
 
             std::cout << "Intersection exist distance: " << inter.dist << std::endl;
-            
         }
 
         return inter;
@@ -96,7 +96,7 @@ namespace RayTracer {
         
         for(Triangle tri : scene->triangle_soup){
             // Find closest intersection; test all triangles
-            Intersection hit_temp = Intersect(ray, tri);
+            Intersection hit_temp = Intersect(ray, &tri);
 
             // std::cout << "Intersect -> hit distance: " << hit_temp.dist << std::endl;
             
@@ -114,10 +114,12 @@ namespace RayTracer {
     }; //page 11, 28, 31
 
     glm::vec3 FindColor(Intersection hit, int recursion_depth, RTScene * scene) {
-        /*if (recursion_depth == 0) {
-            glm::vec3 light_sum = 0.0;
+        /*
+        
+        if (recursion_depth == 0 && hit.dist < INF_DIST) {        
+            glm::vec4 light_sum = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
             
-            for(std::pair<std::string,Light*> entry: scene.light) {
+            for(std::pair<std::string,Light*> entry: scene->light) {
                 Light* light = entry.second;
 
                 // find visibility
@@ -126,69 +128,83 @@ namespace RayTracer {
                 ray.p0 = hit.intsec_pos;
                 ray.d = light->position - hit.intersec_pos;
                 Intersection light_hit = Intersect(ray, scene);
-                if (light_hit.dist == std::numeric_limits<float>::max()) {
-                    vis = 0;
-                }
+                if (light_hit.dist == INF_DIST) { vis = 0; }
 
-                // find color
-                glm::vec3 l = glm::normalize(hit.intsec_pos.w * light->position.xyz - 
-                                        light->position.w * hit.intsec_pos.xyz);
-                glm::vec3 light
-                light_sum = light_sum + hit.tri->material->diffuse * light->color *
-                            max(glm::dot(hit.surface_normal, l), 0) * vis;
+                // transform light position to camera coord
+                glm::vec4 cLightPos = scene->camera->view * light->position;
+
+                // l vector
+                glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
+
+                // diffuse * max(n.l, 0)
+                glm::vec4 diffuse = hit.tri->material->diffuse;
+                float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
+                diffuse = glm::vec4(diffuse.x * diffsca, diffuse.y * diffsca, diffuse.z * diffsca, diffuse.w * diffsca);
+
+                // diffuse * max(n.l, 0) * vis
+                light_sum += glm::vec4(light->color.x * diffuse.x * vis, light->color.y * diffuse.y * vis, light->color.z * diffuse.z * vis, light->color.w * diffuse.w * vis);
             }
-            return light_sum / scene.light.size();
-        }
-
-        // for (int k = 0; k < sample_num; k++) {
-        //     float rand_i = hit.intsec_pos[0] + double(rand()) / RAND_MAX;
-        //     float rand_j = hit.intsec_pos[1] + double(rand()) / RAND_MAX;
-
-        float randChoose = double(rand()) / RAND_MAX;
-        if (randChoose <= 0.5) {
-            //diffuse
-            //calculate d: TODO how to make sure d is uniform?
-            float randAngle0 = double(rand()) / RAND_MAX * M_PI;
-            float randAngle1 = double(rand()) / RAND_MAX * M_PI;
-            float di = glm::sin(randAngle0) * glm::sin(randAngle1);
-            float dj = glm::sin(randAngle0) * glm::cos(randAngle1);
-            float dk = glm::sin(randAngle1);
-            glm::vec3 d_ray2 = glm::vec3(di, dj, dk);
-            //color seen by L_pd
-            Ray ray2;
-            ray2.p0 = hit.intsec_pos;
-            ray2.d = d_ray2;
-            Intersection hit2 = Intersect(ray2, scene);
-            glm::vec3 diffuse_color = FindColor(hit, recursion_depth-1, scene);
-            //C_diffuse * L(p,d) (n dot d)
-            return hit.tri->material->diffuse * diffuse_color * 
-                        glm::dot(hit.surface_normal, d)
-            //hit.tri->material->diffuse * FindColor()
-            //glm::dot(d, hit.surface_normal);
-        } else {
-            //specular
-            glm::vec3 r = 2*glm::dot(hit.surface_normal)
-        }
             
-        //}
-        return 0;*/
+            return glm::vec3(light_sum);
+        }
+        else if(hit.dist < INF_DIST) {
+            float randChoose = double(rand()) / RAND_MAX;
+            if (randChoose <= 0.5) { //diffuse
+                // calculate d - TODO
+                float randAngle0 = double(rand()) / RAND_MAX * M_PI;
+                float randAngle1 = double(rand()) / RAND_MAX * M_PI;
+                float di = glm::sin(randAngle0) * glm::sin(randAngle1);
+                float dj = glm::sin(randAngle0) * glm::cos(randAngle1);
+                float dk = glm::sin(randAngle1);
+                glm::vec3 d_ray2 = glm::vec3(di, dj, dk);
+                
+                // Intersection hit by L_pd 
+                Ray ray2;
+                ray2.p0 = hit.intsec_pos;
+                ray2.d = d_ray2;
+                Intersection hit2 = Intersect(ray2, scene);
+
+                glm::vec3 dif_color = FindColor(hit2, recursion_depth-1, scene); // L(p,d)
+                glm::vec4 dif = hit.tri->material->diffuse; // C_diffuse
+                float nd = glm::dot(hit.surface_normal, d_ray2); // n.d 
+
+                glm::vec3 l_seen = glm::vec4(dif.x * dif_color.x * nd, dif.y * dif_color.y * nd, dif.z * dif_color.z * nd);
+                            
+                return l_seen;
+            } else { //specular
+                // reflection vector r
+                float twoNV = 2 * glm::dot(hit.surface_normal, hit.inr_d);
+                glm::vec3 n = hit.surface_normal;
+                glm::vec3 r =  glm::vec3(twoNV * n.x, twoNV * n.y, twoNV * n.z) - hit.inr_d;
+
+                Ray ray_ref;
+                ray_ref.p0 = hit.intsec_pos;
+                ray_ref.d = r;
+                Intersection hit_ref = Intersect(ray_ref, scene);
+
+                glm::vec3 ref_color = FindColor(hit_ref, recursion_depth - 1, scene);
+                glm::vec4 spec = hit.tri->material->specular;    
+                glm::vec3 l_seen = glm::vec3(spec.x * ref_color.x, spec.y * ref_color.y, spec.z * ref_color.z);
+                
+                return l_seen;
+            }
+        }
+
+        */
 
         //std::cout << "hit.dist = " << hit.dist << std::endl;
 
         //find distance
         if (hit.dist < INF_DIST) {
-            //std::cout << "Intersection exists: " << hit.dist << std::endl;
-                
-            // add emission E first. TODO, keep getting error for material->emision
-            // glm::vec4 color = hit.tri->material->emision;
             if (!(hit.tri->material)) {
                 std::cout << "material NULL pointer";
             }
             
-            glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            glm::vec4 color = hit.tri->material->emision;
 
             for(std::pair<std::string,Light*> entry: scene->light) {
                 Light* light = entry.second;
+                
                 // transform light position to camera coord
                 glm::vec4 cLightPos = scene->camera->view * light->position;
 
