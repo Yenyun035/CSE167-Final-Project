@@ -6,7 +6,7 @@
 
 class RTGeometry {
 public:
-  int count = 0; // number of elements to draw
+  uint64_t count = 0; // number of elements to draw
   std::vector<Triangle> elements; // list of triangles
   
   virtual void init(){};

@@ -5,6 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #define GLM_SWIZZLE
+#define INF_DIST 2.0e+10
 
 namespace RayTracer {
     
@@ -19,14 +20,16 @@ namespace RayTracer {
                 glm::vec3 sum_color = glm::vec3(0.0f, 0.0f, 0.0f);
                 
                 for (int k = 0; k < sample_num; k++) {
-                    float rand_i = i + double(rand()) / RAND_MAX; // [i,i+1]
-                    float rand_j = j + double(rand()) / RAND_MAX; // [j,j+1]
-                    Ray ray = RayThruPixel(cam, rand_i, rand_j, w, h);
-                    Intersection hit = Intersect(ray, scene);
-                    sum_color += FindColor(hit, rec, scene);
+                   float rand_i = i + float(rand()) / RAND_MAX; // [i,i+1]
+                   float rand_j = j + float(rand()) / RAND_MAX; // [j,j+1]
+                   Ray ray = RayThruPixel(cam, rand_i, rand_j, w, h);
+                   Intersection hit = Intersect(ray, &scene);
+                   sum_color += FindColor(hit, rec, &scene);
                 }
-
+            
                 image.pixels[j * w + i] = inv_sam * sum_color;
+
+                std::cout << "Sampling (" << i << ", " << j << ") ended -> color = (" << image.pixels[j * w + i][0] << image.pixels[j * w + i][1] << image.pixels[j * w + i][2] << ")" << std::endl;
             }
         }
     };
@@ -51,11 +54,8 @@ namespace RayTracer {
 
     //TODO intersection struct or class? how to initialize?
     Intersection Intersect(Ray ray, Triangle tri) {
-        glm::vec3 p1 = tri.pos[0];
-        glm::vec3 p2 = tri.pos[1];
-        glm::vec3 p3 = tri.pos[2];
-        glm::vec3 d = ray.d;
-        glm::vec3 p0 = ray.p0;
+        glm::vec3 p1 = tri.pos[0], p2 = tri.pos[1], p3 = tri.pos[2];
+        glm::vec3 d = ray.d, p0 = ray.p0;
         
         glm::mat4 m;
         m[0] = glm::vec4(p1, 1.0f);
@@ -75,38 +75,45 @@ namespace RayTracer {
             inter.surface_normal = glm::normalize(glm::vec3(lamdaT.x * tri.normal[0] 
                                     + lamdaT.y * tri.normal[1] + lamdaT.z * tri.normal[2]));
             // incoming ray direction
-            inter.inr_d = d;
+            inter.inr_d = d; // d or -d
 
             // pointer to the triangle
             inter.tri = &tri;
             
             // t, i.e distance to ray
             inter.dist = lamdaT.w;
+
+            std::cout << "Intersection exist distance: " << inter.dist << std::endl;
             
-        } else {
-            inter.dist = std::numeric_limits<float>::max();
         }
 
         return inter;
-    } //page 30, 33
+    }; //page 30, 33
 
-    Intersection Intersect(Ray ray, RTScene scene) {
-        float mindist = std::numeric_limits<float>::max();
+    Intersection Intersect(Ray ray, RTScene * scene) {
+        float mindist = INF_DIST;
         Intersection hit;
         
-        for(Triangle tri : scene.triangle_soup){
+        for(Triangle tri : scene->triangle_soup){
             // Find closest intersection; test all triangles
             Intersection hit_temp = Intersect(ray, tri);
+
+            // std::cout << "Intersect -> hit distance: " << hit_temp.dist << std::endl;
+            
             // closer than previous hit
             if (hit_temp.dist < mindist) {
                 mindist = hit_temp.dist;
                 hit = hit_temp;
+
+                // std::cout << "Update hit" << std::endl;
+                // std::cout << "Intersect -> hit distance = " << hit.dist << " | hit_temp = " << hit_temp.dist << std::endl;
             }
         }
-        return hit;
-    } //page 11, 28, 31
 
-    glm::vec3 FindColor(Intersection hit, int recursion_depth, RTScene scene) {
+        return hit;
+    }; //page 11, 28, 31
+
+    glm::vec3 FindColor(Intersection hit, int recursion_depth, RTScene * scene) {
         /*if (recursion_depth == 0) {
             glm::vec3 light_sum = 0.0;
             
@@ -165,11 +172,13 @@ namespace RayTracer {
             
         //}
         return 0;*/
-    
-        //find distance
-        if (hit.dist < std::numeric_limits<float>::max()) {
-                
 
+        //std::cout << "hit.dist = " << hit.dist << std::endl;
+
+        //find distance
+        if (hit.dist < INF_DIST) {
+            //std::cout << "Intersection exists: " << hit.dist << std::endl;
+                
             // add emission E first. TODO, keep getting error for material->emision
             // glm::vec4 color = hit.tri->material->emision;
             if (!(hit.tri->material)) {
@@ -178,10 +187,10 @@ namespace RayTracer {
             
             glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-            for(std::pair<std::string,Light*> entry: scene.light) {
+            for(std::pair<std::string,Light*> entry: scene->light) {
                 Light* light = entry.second;
                 // transform light position to camera coord
-                glm::vec4 cLightPos = scene.camera->view * light->position;
+                glm::vec4 cLightPos = scene->camera->view * light->position;
 
                 // l vector
                 glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
@@ -207,6 +216,8 @@ namespace RayTracer {
 
             return glm::vec3(color);
         }
+
+        //std::cout << "Dist infinity" << std::endl;
         return glm::vec3(0.0f,0.0f,0.0f);
-    } //page 15
+    }; //page 15
 };
