@@ -12,7 +12,7 @@ namespace RayTracer {
     void Raytrace(Camera cam, RTScene scene, Image &image){
         int w = image.width;
         int h = image.height;
-        int sample_num = 3;
+        int sample_num = 10;
         int rec = 1;
         float inv_sam = 1.0f / sample_num;
 
@@ -31,8 +31,6 @@ namespace RayTracer {
                 image.pixels[j * w + i] = inv_sam * sum_color;
             }
         }
-
-        std::cout << "Ray Tracing completed" << std::endl;
     };
 
     Ray RayThruPixel(Camera cam, float i, float j, int width, int height) {
@@ -43,9 +41,8 @@ namespace RayTracer {
         Ray ray;
         ray.p0 = cam.eye;
 
-        float alpha = 2 * ((i + 0.5f) / width) - 1; // does +0.5f means center of the pixel?
+        float alpha = 2 * ((i + 0.5f) / width) - 1;
         float beta = 1 - (2 * (j + 0.5f) / height);
-        // TODO: is aspect from camera property or from parameter of the function?
         float tan_fovy = glm::tan(cam.fovy / 2);
         
         ray.d = glm::normalize(alpha * cam.aspect * tan_fovy * u + beta * tan_fovy * v - w);
@@ -186,10 +183,6 @@ namespace RayTracer {
 
         //find distance
         if (hit.dist < INF_DIST) {
-            if (!(hit.tri->material)) {
-                std::cout << "material NULL pointer";
-            }
-            
             glm::vec4 color = hit.tri->material->emision;
 
             for(std::pair<std::string,Light*> entry: scene->light) {
@@ -201,8 +194,10 @@ namespace RayTracer {
                 // l vector
                 glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
 
-                // v vector = -p
-                glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
+                // v vector = -p //unit vector point toward the viewer
+                // should be opposite to ray direction?
+                // glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
+                glm::vec3 v = normalize(hit.inr_d); //inr_d = -d
 
                 // h vector
                 glm::vec3 h = normalize(v + l);

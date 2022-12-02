@@ -17,8 +17,8 @@
 #include "Image.h"
 #include "RayTracer.h"
 
-static const int width = 200; //800;
-static const int height = 150; // 600;
+static const int width = 300;
+static const int height = 250;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static RTScene scene;
@@ -36,7 +36,6 @@ void printHelp(){
       press 'A'/'Z' to zoom.
       press 'R' to reset camera.
       press 'L' to turn on/off the lighting.
-      press 'P' to impose image as a texture.
       press Spacebar to generate images for hw3 submission.
     
 )";
@@ -49,7 +48,6 @@ void initialize(void){
     
     // Initialize scene
     scene.init();
-    scene.buildTriangleSoup();
     image.init();
 
     // Enable depth test
@@ -60,6 +58,12 @@ void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     //scene.draw();
+    scene.buildTriangleSoup();
+
+    std::cout << "Start Ray Tracing" << std::endl;
+    RayTracer::Raytrace(*(scene.camera), scene, image);
+    std::cout << "Ray Tracing completed" << std::endl;
+
     image.draw();
     
     glutSwapBuffers();
@@ -98,15 +102,11 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            scene.shader -> enablelighting = !(scene.shader -> enablelighting);
+            // scene.shader -> enablelighting = !(scene.shader -> enablelighting);
             glutPostRedisplay();
             break;
         case ' ':
             hw3AutoScreenshots();
-            glutPostRedisplay();
-            break;
-        case 'p':
-            RayTracer::Raytrace(*(scene.camera), scene, image);
             glutPostRedisplay();
             break;
         default:

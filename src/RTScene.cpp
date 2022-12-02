@@ -20,6 +20,7 @@ using namespace glm;
 void RTScene::buildTriangleSoup() { //TODO: can it be a static function?
 
     camera -> computeMatrices();
+    std::vector<Triangle> temp_soup;
     
     // Define stacks for depth-first search (DFS)
     std::stack<Node*> dfs_stack;
@@ -40,7 +41,7 @@ void RTScene::buildTriangleSoup() { //TODO: can it be a static function?
     for(const auto &n : node) total_number_of_edges += n.second->childnodes.size();
     
     // If you want to print some statistics of your scene graph
-    // std::cout << "total numb of nodes = " << node.size() << std::endl;
+    // std::cout << "total number of nodes = " << node.size() << std::endl;
     // std::cout << "total number of edges = " << total_number_of_edges << std::endl;
     
     while(!dfs_stack.empty() ){
@@ -59,23 +60,23 @@ void RTScene::buildTriangleSoup() { //TODO: can it be a static function?
         for ( size_t i = 0; i < cur -> models.size(); i++ ){
             // update corresponding VM
             glm::mat4 new_VM = cur_VM * cur-> modeltransforms[i];
+            glm::mat3 AInvT = glm::transpose(glm::inverse(glm::mat3(new_VM)));
             
-            // From model to triangle
-            // Add triangle to the triangle soup
+            // From model to triangle. Add triangle to the triangle soup
             for (Triangle tri : (cur->models[i]) -> geometry -> elements) {
                 Triangle new_tri;
                 new_tri.pos = std::vector<glm::vec3>(3);
                 new_tri.normal = std::vector<glm::vec3>(3);
 
                 for(int j = 0; j < 3; j++) {
-                    new_tri.pos[j] = new_VM * glm::vec4(tri.pos[j], 1.0f);
-                    glm::mat3 AInvT = glm::transpose(glm::inverse(glm::mat3(new_VM)));
+                    glm::vec4 newPos = new_VM * glm::vec4(tri.pos[j], 1.0f);
+                    new_tri.pos[j] = glm::vec3(newPos.x / newPos.w, newPos.y / newPos.w, newPos.z / newPos.w);
                     new_tri.normal[j] = glm::normalize(AInvT * tri.normal[j]);
                 }
                 
                 new_tri.material = (cur->models[i]) -> material;
                 
-                triangle_soup.push_back(new_tri);
+                temp_soup.push_back(new_tri);
             }
         }
         
@@ -87,4 +88,6 @@ void RTScene::buildTriangleSoup() { //TODO: can it be a static function?
             matrix_stack.push(cur_VM * cur -> childtransforms[i]);
         }
     }
+
+    triangle_soup = temp_soup;
 }
