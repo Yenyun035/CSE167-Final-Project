@@ -12,7 +12,7 @@ namespace RayTracer {
     void Raytrace(Camera cam, RTScene scene, Image &image){
         int w = image.width;
         int h = image.height;
-        int sample_num = 10;
+        int sample_num = 1;
         int rec = 1;
         float inv_sam = 1.0f / sample_num;
 
@@ -27,8 +27,9 @@ namespace RayTracer {
                    Intersection hit = Intersect(ray, &scene);
                    sum_color += FindColor(hit, rec, &scene);
                 }
-            
-                image.pixels[j * w + i] = inv_sam * sum_color;
+                
+                float newJ = (h / 2.0f - j) * 2 + j;
+                image.pixels[newJ * w + i] = inv_sam * sum_color;
             }
         }
     };
@@ -43,7 +44,7 @@ namespace RayTracer {
 
         float alpha = 2 * ((i + 0.5f) / width) - 1;
         float beta = 1 - (2 * (j + 0.5f) / height);
-        float tan_fovy = glm::tan(cam.fovy / 2);
+        float tan_fovy = glm::tan((cam.fovy * M_PI/180.0f) / 2.0f);
         
         ray.d = glm::normalize(alpha * cam.aspect * tan_fovy * u + beta * tan_fovy * v - w);
 
@@ -90,9 +91,11 @@ namespace RayTracer {
         float mindist = INF_DIST;
         Intersection hit;
         
-        for(Triangle tri : scene->triangle_soup){
+        for(int i = 0; i < scene->triangle_soup.size(); i++) {
+            Triangle *tri = &(scene->triangle_soup[i]);
+
             // Find closest intersection; test all triangles
-            Intersection hit_temp = Intersect(ray, &tri);
+            Intersection hit_temp = Intersect(ray, tri);
             
             // closer than previous hit
             if (hit_temp.dist < mindist) {
@@ -179,6 +182,14 @@ namespace RayTracer {
             }
         }
 
+
+
+        //float t = double(rand()) / RAND_MAX;
+        // float s = double(rand()) / RAND_MAX;
+        // float u = 2 * M_PI * s;
+        // float v = sqrt(1 - t);
+        // sh_ray.d = glm::vec3(v * glm::cos(u), sqrt(t), v * glm::sin(u));
+
         */
 
         //find distance
@@ -194,8 +205,16 @@ namespace RayTracer {
                 // l vector
                 glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
 
+                // shadow ray
+                Ray sh_ray;
+                sh_ray.p0 = hit.intsec_pos + 0.1f * hit.surface_normal;
+                sh_ray.d = l;
+                Intersection sh_hit = Intersect(sh_ray, scene);
+                
+                // the light is not visible
+                if(sh_hit.dist < INF_DIST) { continue; }
+
                 // v vector = -p //unit vector point toward the viewer
-                // should be opposite to ray direction?
                 // glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
                 glm::vec3 v = normalize(hit.inr_d); //inr_d = -d
 

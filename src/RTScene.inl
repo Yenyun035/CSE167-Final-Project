@@ -14,6 +14,9 @@ void RTScene::init(void){
     geometry["cube"] -> init();
     // geometry["teapot"] -> init("models/teapot.obj");
     // geometry["bunny"] -> init("models/bunny.obj");
+
+    geometry["cup"] = new RTObj;
+    geometry["cup"] -> init("models/sphere.obj");
     
     // Create a material palette
     material["wood"] = new Material;
@@ -28,11 +31,11 @@ void RTScene::init(void){
     // material["ceramic"] -> specular = vec4(0.9f, 0.9f, 0.9f, 1.0f);
     // material["ceramic"] -> shininess = 150.0f;
  
-    // material["silver"] = new Material;
-    // material["silver"] -> ambient = vec4(0.1f, 0.1f, 0.1f, 1.0f);
-    // material["silver"] -> diffuse = vec4(0.2f, 0.2f, 0.2f, 1.0f);
-    // material["silver"] -> specular = vec4(0.9f, 0.9f, 0.9f, 1.0f);
-    // material["silver"] -> shininess = 50.0f;
+    material["silver"] = new Material;
+    material["silver"] -> ambient = vec4(0.1f, 0.1f, 0.1f, 1.0f);
+    material["silver"] -> diffuse = vec4(0.2f, 0.2f, 0.2f, 1.0f);
+    material["silver"] -> specular = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+    material["silver"] -> shininess = 50.0f;
     
     // material["turquoise"] = new Material;
     // material["turquoise"] -> ambient = vec4(0.1f, 0.2f, 0.17f, 1.0f);
@@ -63,6 +66,10 @@ void RTScene::init(void){
     model["bulb"] = new Model;
     model["bulb"] -> geometry = geometry["cube"];
     model["bulb"] -> material = material["bulb"];
+
+    model["cup"] = new Model;
+    model["cup"] -> geometry = geometry["cup"];
+    model["cup"] -> material = material["silver"];
     
     // Create a light palette
     light["sun"] = new Light;
@@ -80,6 +87,8 @@ void RTScene::init(void){
     // node["teapot1"] = new Node;
     // node["teapot2"] = new Node;
     // node["bunny"] = new Node;    
+
+    node["cup"] = new Node;
     
     node["table"] -> childnodes.push_back( node["table top"] );
     node["table"] -> childtransforms.push_back( translate(vec3(0.0f,0.7f,0.0f)) );
@@ -101,11 +110,15 @@ void RTScene::init(void){
     // node["table top"] -> childtransforms.push_back( translate(vec3(-0.5f,0.0f,0.0f)) );
     // node["table top"] -> childnodes.push_back( node["teapot2"] );
     // node["table top"] -> childtransforms.push_back( rotate( -120.0f*float(M_PI)/180.0f, vec3(0.0f, 1.0f, 0.0f) ) );
+    node["table top"] -> childnodes.push_back( node["cup"] );
+    node["table top"] -> childtransforms.push_back( translate(vec3( 0.5f,0.0f,0.0f))); // * rotate( -120.0f*float(M_PI)/180.0f, vec3(0.0f, 1.0f, 0.0f) ) );
     
     // node["teapot1"] -> models.push_back( model["teapot1"] );
     // node["teapot1"] -> modeltransforms.push_back( scale(vec3(0.5f)) );
     // node["teapot2"] -> models.push_back( model["teapot2"] );
     // node["teapot2"] -> modeltransforms.push_back( scale(vec3(1.0f,1.5f,1.0f)) * scale(vec3(0.5f)) );
+    node["cup"] -> models.push_back( model["cup"] );
+    node["cup"] -> modeltransforms.push_back( scale(vec3(1.0f,1.0f,1.0f)) * scale(vec3(0.2f)) );
     
     // node["bunny"] -> models.push_back( model["bunny"] );
     // node["bunny"] -> modeltransforms.push_back( scale(vec3(0.8f)) * translate(vec3(0.0f,1.0f,0.0f)) );
@@ -120,7 +133,7 @@ void RTScene::init(void){
     // Put a camera
     camera = new Camera;
     camera -> target_default = vec3( 0.0f, 1.0f, 0.0f );
-    camera -> eye_default = vec3( 0.0f, 0.5f, 2.0f );
+    camera -> eye_default = vec3( 0.0f, 1.3f, 5.0f );
     camera -> up_default = vec3( 0.0f, 1.0f, 0.0f );
     camera -> reset();
     

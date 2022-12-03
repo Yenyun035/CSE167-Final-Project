@@ -24,6 +24,8 @@ static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static RTScene scene;
 static Image image(width, height);
 
+int second_flag = 0;
+
 #include "hw3AutoScreenshots.h"
 
 void printHelp(){
@@ -47,7 +49,7 @@ void initialize(void){
     glViewport(0,0,width,height);
     
     // Initialize scene
-    scene.init();
+    // scene.init();
     image.init();
 
     // Enable depth test
@@ -58,6 +60,13 @@ void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     
     //scene.draw();
+    if(second_flag) {
+        scene.node["world"] = new Node;
+    }
+
+    if(!second_flag) { second_flag = 1; }
+
+    scene.init();
     scene.buildTriangleSoup();
 
     std::cout << "Start Ray Tracing" << std::endl;
