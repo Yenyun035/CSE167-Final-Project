@@ -17,8 +17,8 @@
 #include "Image.h"
 #include "RayTracer.h"
 
-static const int width = 300;
-static const int height = 250;
+static const int width = 500;
+static const int height = 450;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static RTScene scene;

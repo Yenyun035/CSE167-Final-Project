@@ -6,14 +6,15 @@
 #include <algorithm>
 #define GLM_SWIZZLE
 #define INF_DIST 2.0e+10
+#define ENV_COLOR glm::vec3(0.1f, 0.2f, 0.3f)
+#define REC_DEPTH 6
 
 namespace RayTracer {
     
     void Raytrace(Camera cam, RTScene scene, Image &image){
         int w = image.width;
         int h = image.height;
-        int sample_num = 1;
-        int rec = 1;
+        int sample_num = 10;
         float inv_sam = 1.0f / sample_num;
 
         for (int j = 0; j < h; j++) {
@@ -25,7 +26,7 @@ namespace RayTracer {
                    float rand_j = j + float(rand()) / RAND_MAX; // [j,j+1]
                    Ray ray = RayThruPixel(cam, rand_i, rand_j, w, h);
                    Intersection hit = Intersect(ray, &scene);
-                   sum_color += FindColor(hit, rec, &scene);
+                   sum_color += FindColor(hit, REC_DEPTH, &scene);
                 }
                 
                 float newJ = (h / 2.0f - j) * 2 + j;
@@ -35,18 +36,22 @@ namespace RayTracer {
     };
 
     Ray RayThruPixel(Camera cam, float i, float j, int width, int height) {
-        glm::vec3 w = glm::normalize(cam.eye - cam.target);
-        glm::vec3 u = glm::normalize(glm::cross(cam.up, w));
-        glm::vec3 v = glm::normalize(glm::cross(w, u));
+        // glm::vec3 w = glm::normalize(cam.eye - cam.target);
+        // glm::vec3 u = glm::normalize(glm::cross(cam.up, w));
+        // glm::vec3 v = glm::normalize(glm::cross(w, u));
 
         Ray ray;
-        ray.p0 = cam.eye;
+        // ray.p0 = cam.eye;
+        ray.p0 = glm::vec3(0.0f, 0.0f, 0.0f);
 
         float alpha = 2 * ((i + 0.5f) / width) - 1;
         float beta = 1 - (2 * (j + 0.5f) / height);
-        float tan_fovy = glm::tan((cam.fovy * M_PI/180.0f) / 2.0f);
+        float tan_fovy = glm::tan(cam.fovy / 2.0f * M_PI / 180.0f);
         
-        ray.d = glm::normalize(alpha * cam.aspect * tan_fovy * u + beta * tan_fovy * v - w);
+        // float tan_fovy = glm::tan(cam.fovy / 2);
+        
+        //ray.d = glm::normalize(alpha * cam.aspect * tan_fovy * u + beta * tan_fovy * v - w);
+        ray.d = glm::normalize(glm::vec3(alpha * cam.aspect * tan_fovy, beta * tan_fovy, -1));
 
         return ray;
     };
@@ -108,94 +113,12 @@ namespace RayTracer {
     }; //page 11, 28, 31
 
     glm::vec3 FindColor(Intersection hit, int recursion_depth, RTScene * scene) {
-        /*
-        
-        if (recursion_depth == 0 && hit.dist < INF_DIST) {        
-            glm::vec4 light_sum = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-            
-            for(std::pair<std::string,Light*> entry: scene->light) {
-                Light* light = entry.second;
-
-                // find visibility
-                int vis = 1;
-                Ray ray;
-                ray.p0 = hit.intsec_pos;
-                ray.d = light->position - hit.intersec_pos;
-                Intersection light_hit = Intersect(ray, scene);
-                if (light_hit.dist == INF_DIST) { vis = 0; }
-
-                // transform light position to camera coord
-                glm::vec4 cLightPos = scene->camera->view * light->position;
-
-                // l vector
-                glm::vec3 l = normalize(glm::vec3(cLightPos) - cLightPos.w * hit.intsec_pos);
-
-                // diffuse * max(n.l, 0)
-                float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
-                glm::vec4 diffuse = diffsca *  hit.tri->material->diffuse;
-
-                // diffuse * max(n.l, 0) * vis
-                light_sum += vis * glm::vec4(light->color.x * diffuse.x, light->color.y * diffuse.y, light->color.z * diffuse.z, light->color.w * diffuse.w);
-            }
-            
-            return glm::vec3(light_sum);
-        }
-        else if(hit.dist < INF_DIST) {
-            float randChoose = double(rand()) / RAND_MAX;
-            if (randChoose <= 0.5) { //diffuse
-                // calculate d - TODO
-                float randAngle0 = double(rand()) / RAND_MAX * M_PI;
-                float randAngle1 = double(rand()) / RAND_MAX * M_PI;
-                float di = glm::sin(randAngle0) * glm::sin(randAngle1);
-                float dj = glm::sin(randAngle0) * glm::cos(randAngle1);
-                float dk = glm::sin(randAngle1);
-                glm::vec3 d_ray2 = glm::vec3(di, dj, dk);
-                
-                // Intersection hit by L_pd 
-                Ray ray2;
-                ray2.p0 = hit.intsec_pos;
-                ray2.d = d_ray2;
-                Intersection hit2 = Intersect(ray2, scene);
-
-                glm::vec3 dif_color = FindColor(hit2, recursion_depth-1, scene); // L(p,d)
-                glm::vec4 dif = hit.tri->material->diffuse; // C_diffuse
-                float nd = glm::dot(hit.surface_normal, d_ray2); // n.d 
-
-                glm::vec3 l_seen = nd * glm::vec4(dif.x * dif_color.x, dif.y * dif_color.y, dif.z * dif_color.z);
-                            
-                return l_seen;
-            } else { //specular
-                // reflection vector r
-                float twoNV = 2 * glm::dot(hit.surface_normal, hit.inr_d);
-                glm::vec3 r =  twoNV * hit.surface_normal - hit.inr_d;
-
-                Ray ray_ref;
-                ray_ref.p0 = hit.intsec_pos;
-                ray_ref.d = r;
-                Intersection hit_ref = Intersect(ray_ref, scene);
-
-                glm::vec3 ref_color = FindColor(hit_ref, recursion_depth - 1, scene);
-                glm::vec4 spec = hit.tri->material->specular;    
-                glm::vec3 l_seen = glm::vec3(spec.x * ref_color.x, spec.y * ref_color.y, spec.z * ref_color.z);
-                
-                return l_seen;
-            }
-        }
-
-
-
-        //float t = double(rand()) / RAND_MAX;
-        // float s = double(rand()) / RAND_MAX;
-        // float u = 2 * M_PI * s;
-        // float v = sqrt(1 - t);
-        // sh_ray.d = glm::vec3(v * glm::cos(u), sqrt(t), v * glm::sin(u));
-
-        */
-
         //find distance
         if (hit.dist < INF_DIST) {
-            glm::vec4 color = hit.tri->material->emision;
 
+            glm::vec3 color = glm::vec3(0.0f);
+
+            // old school diffuse
             for(std::pair<std::string,Light*> entry: scene->light) {
                 Light* light = entry.second;
                 
@@ -210,31 +133,41 @@ namespace RayTracer {
                 sh_ray.p0 = hit.intsec_pos + 0.1f * hit.surface_normal;
                 sh_ray.d = l;
                 Intersection sh_hit = Intersect(sh_ray, scene);
-                
-                // the light is not visible
-                if(sh_hit.dist < INF_DIST) { continue; }
 
-                // v vector = -p //unit vector point toward the viewer
-                // glm::vec3 v = normalize(-1.0f * hit.intsec_pos);
-                glm::vec3 v = normalize(hit.inr_d); //inr_d = -d
+                // the light is not visible
+                if (sh_hit.dist < INF_DIST) { continue; }
+
+                // v vector = -p
+                glm::vec3 v = normalize(hit.inr_d);
 
                 // h vector
                 glm::vec3 h = normalize(v + l);
 
-                glm::vec4 C = hit.tri->material->ambient;
-
                 float diffsca = std::max(glm::dot(hit.surface_normal,l), 0.0f);
-                C += diffsca * hit.tri->material->diffuse;
+                glm::vec4 C = diffsca * hit.tri->material->diffuse;
                 
-                float specsca = pow(std::max(glm::dot(hit.surface_normal,h), 0.0f),  hit.tri->material->shininess);
-                C += specsca * hit.tri->material->specular;
-                
-                color += glm::vec4(light->color.x * C.x, light->color.y * C.y, light->color.z * C.z, light->color.w * C.w);
+                color += glm::vec3(light->color.x * C.x, light->color.y * C.y, light->color.z * C.z);
             }
 
-            return glm::vec3(color);
-        }
+            if (recursion_depth > 0) {
+                // recursive reflection
+                float twoNV = 2 * glm::dot(hit.surface_normal, hit.inr_d);
+                glm::vec3 r = twoNV * hit.surface_normal - hit.inr_d;
 
-        return glm::vec3(0.0f,0.0f,0.0f);
+                Ray ray_ref;
+                ray_ref.p0 = hit.intsec_pos + 0.1f * hit.surface_normal;
+                ray_ref.d = r;
+                Intersection hit_ref = Intersect(ray_ref, scene);
+                glm::vec3 ref_color = FindColor(hit_ref, recursion_depth - 1, scene);
+
+                glm::vec4 spec = hit.tri->material->specular;
+                glm::vec3 l_seen = glm::vec3(spec.x * ref_color.x, spec.y * ref_color.y, spec.z * ref_color.z);
+
+                color += l_seen;
+            }
+
+            return color;
+        }
+        return ENV_COLOR;
     }; //page 15
 };
