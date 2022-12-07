@@ -10,11 +10,11 @@ void RTScene::init(void) {
     // Create a geometry palette
     geometry["cube"] = new RTCube;
     // geometry["teapot"] = new RTObj;
-    // geometry["sphere"] = new RTObj;
+    geometry["sphere"] = new RTObj;
     //geometry["bunny"] = new RTObj;
     geometry["cube"]->init();
     // geometry["teapot"] -> init("models/teapot.obj");
-    // geometry["sphere"] -> init("models/sphere.obj");
+    geometry["sphere"] -> init("models/sphere.obj");
     // geometry["bunny"] -> init("models/bunny.obj");
 
     // Create a material palette
@@ -65,18 +65,18 @@ void RTScene::init(void) {
     model["bulb"] = new Model;
     model["bulb"]->geometry = geometry["cube"];
     model["bulb"]->material = material["bulb"];
-    // model["sphere1"] = new Model;
-    // model["sphere1"]->geometry = geometry["sphere"];
-    // model["sphere1"]->material = material["silver"];
+    model["sphere1"] = new Model;
+    model["sphere1"]->geometry = geometry["sphere"];
+    model["sphere1"]->material = material["silver"];
     // model["sphere2"] = new Model;
     // model["sphere2"]->geometry = geometry["sphere"];
     // model["sphere2"]->material = material["turquoise"];
-    model["cube1"] = new Model;
-    model["cube1"]->geometry = geometry["cube"];
-    model["cube1"]->material = material["silver"];
+    // model["cube1"] = new Model;
+    // model["cube1"]->geometry = geometry["cube"];
+    // model["cube1"]->material = material["silver"];
     model["cube2"] = new Model;
     model["cube2"]->geometry = geometry["cube"];
-    model["cube2"]->material = material["turquoise"];
+    model["cube2"]->material = material["ceramic"];
 
     // Create a light palette
     light["sun"] = new Light;
@@ -91,9 +91,9 @@ void RTScene::init(void) {
     node["table"] = new Node;
     node["table top"] = new Node;
     node["table leg"] = new Node;
-    // node["sphere1"] = new Node;
+    node["sphere1"] = new Node;
     // node["sphere2"] = new Node;
-    node["cube1"] = new Node;
+    // node["cube1"] = new Node;
     node["cube2"] = new Node;
     // node["teapot1"] = new Node;
     // node["teapot2"] = new Node;
@@ -115,12 +115,12 @@ void RTScene::init(void) {
 
     node["table top"]->models.push_back(model["table piece"]);
     node["table top"]->modeltransforms.push_back(translate(vec3(0.0f, -0.1f, 0.0f)) * scale(vec3(2.0f, 0.2f, 1.0f)));
-    // node["table top"]->childnodes.push_back(node["sphere1"]);
-    // node["table top"]->childtransforms.push_back(translate(vec3(0.3f, 0.0f, 0.0f)));
+    node["table top"]->childnodes.push_back(node["sphere1"]);
+    node["table top"]->childtransforms.push_back(translate(vec3(0.3f, 0.4f, 0.0f)));
     // node["table top"]->childnodes.push_back(node["sphere2"]);
     // node["table top"]->childtransforms.push_back(translate(vec3(-0.3f, 0.4f, -0.3f)));
-    node["table top"]->childnodes.push_back(node["cube1"]);
-    node["table top"]->childtransforms.push_back(translate(vec3(0.3f, 0.0f, 0.0f)));
+    // node["table top"]->childnodes.push_back(node["cube1"]);
+    // node["table top"]->childtransforms.push_back(translate(vec3(0.3f, 0.0f, 0.0f)));
     node["table top"]->childnodes.push_back(node["cube2"]);
     node["table top"]->childtransforms.push_back(translate(vec3(-0.3f, 0.4f, -0.3f)));
     //node["table top"]->childtransforms.push_back(rotate(-120.0f * float(M_PI) / 180.0f, vec3(-1.0f, 2.0f, -1.0f)));
@@ -129,12 +129,12 @@ void RTScene::init(void) {
     // node["table top"]->childnodes.push_back(node["teapot2"]);
     // node["table top"]->childtransforms.push_back(rotate(-120.0f * float(M_PI) / 180.0f, vec3(0.0f, 1.0f, 0.0f)));
 
-    node["cube1"] -> models.push_back( model["cube1"] );
-    node["cube1"] -> modeltransforms.push_back( scale(vec3(0.5f)) );
+    // node["cube1"] -> models.push_back( model["cube1"] );
+    // node["cube1"] -> modeltransforms.push_back( scale(vec3(0.5f)) );
     node["cube2"] -> models.push_back(model["cube2"]);
     node["cube2"] -> modeltransforms.push_back(scale(vec3(1.0f, 1.5f, 1.0f))* scale(vec3(0.5f)));
-    // node["sphere1"] -> models.push_back( model["sphere1"] );
-    // node["sphere1"] -> modeltransforms.push_back( scale(vec3(0.5f)) );
+    node["sphere1"] -> models.push_back( model["sphere1"] );
+    node["sphere1"] -> modeltransforms.push_back( scale(vec3(0.0f)) );
     // node["sphere2"] -> models.push_back(model["sphere2"]);
     // node["sphere2"] -> modeltransforms.push_back(scale(vec3(1.0f, 1.5f, 1.0f)) * scale(vec3(0.5f)));
     // node["teapot1"] -> models.push_back( model["teapot1"] );

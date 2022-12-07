@@ -190,6 +190,8 @@ As there are much more triangles for spheres in comparison to cubes, we did not 
 
 We also made a image with both sphere and cube to compare their reflective properties. The left sphere has a ceramic material and the right cube has a silver material. In the image, you can see the cube's shadow and reflection and the table corner's reflection casting on the sphere. Whereas the sphere's reflection casting on the cube is hiden behind the cube. The cubic shadow on the top of the sphere is because of the bulb. But because bulb has diffuse color as (0.0f, 0.0f, 0.0f) and our model do not include ambient and emision, the bulb does not show up in the image.
 
+## This is the end of our project writeup! Thanks for taking time reading it :)
+
 ## Reference
 1. Ray Tracing Writeup
 2. Piazza

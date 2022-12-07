@@ -7,7 +7,7 @@
 #define GLM_SWIZZLE
 #define INF_DIST 2.0e+10
 #define ENV_COLOR glm::vec3(0.1f, 0.2f, 0.3f)
-#define REC_DEPTH 6
+#define REC_DEPTH 5
 
 namespace RayTracer {
     
