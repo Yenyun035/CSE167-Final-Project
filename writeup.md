@@ -132,17 +132,37 @@ Note: Our implementation does not accommodate the use of keyboard for real-time 
 
 ## Demonstration of Results
 
-The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For our project, we first tried 
+The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For this project, the window size (i.e. image size) is 500 width x 375 height. Our scene includes a small table with two rectangular objects on it. The following images are the results with different sample sizes and recursion depths:
+
+1. Sample Size = 3 & Recursion Depth = 1
+
+![Image rendered with Sample Size as 3 and Recursion Depth as 1](./s3r1.png)
+
+2. Sample Size = 3 & Recursion Depth = 3
+
+![Image rendered with Sample Size as 3 and Recursion Depth as 3](./s3r3.png)
+
+3. Sample Size = 3 & Recursion Depth = 6
+
+![Image rendered with Sample Size as 3 and Recursion Depth as 6](./s3r6.png)
+
+From the above three images with the same sample number = 3 but different recursion depths, the effect of mirror reflection is obvious when looking at the pixels at the bottom of each rectangular objects. Those pixels have a brighter color in the image with recursion depth = 3 in comparison to the image with recursion depth = 1.
+
+4. Sample Size = 10 & Recursion Depth = 1
+
+![Image rendered with Sample Size as 10 and Recursion Depth as 1](./s10r1.png)
+
+5. Sample Size = 10 & Recursion Depth = 6
+
+![Image rendered with Sample Size as 10 and Recursion Depth as 6](./s10r6.png)
+
+6. Sample Size = 30 & Recursion Depth = 1
+
+![Image rendered with Sample Size as 30 and Recursion Depth as 1](./s30r1.png)
+
+On the other hand, as the sample size increases, the smoothness of the objects in the scene has improved as there are less and less ragged pixels at their edges.
 
 ## Reference
 1. Ray Tracing Writeup
 2. Piazza
 3. Ray Tracing Lecture slides
-
-5%: Write-up (PDF file) (or a link to accessible google doc, github webpage, etc): Introduce the topic, briefly explain the math/physics underpinning the method, describe the algorithm. Show your understanding of the topic by explaining the subject to the reader.
-
-5%: Implementation (source code)
-
-10%: Demonstration: A compilation of your favorite results that best show the significant points of the topic. This demonstration can be of a form of a video clip. If the work is very static, then you can just put a result section in your write-up as the demonstration. We encourage a video since a video is useful for showing your user interface design for your program, and definitely useful for showing an animated result.
-
-5%: Bonus for excellent final projects.
