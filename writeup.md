@@ -73,9 +73,7 @@ Specular reflection in the ray tracer will be explained in the later section.
 
 ### Shadow
 
-Upon this point, the ray tracer knows which object the pixel might seen. However, this nearest object could be in shadow casted by other objects. Therefore, the second ray is shoot from the location of the hit to all the light sources. This second ray is defined as:
-
-
+Upon this point, the ray tracer knows which object the pixel might seen. However, this nearest object could be in shadow casted by other objects. Therefore, the second ray is shoot from the location of the hit to all the light sources. The source of the second ray source is the *hit location (q)*, the direction of the second ray is defined as $normalize(l_i - q)$ where *$l_i$* is ith light's source location.
 
 If the second ray hits an object, aka an object impeding the light from the light source, then the nearest object is in shadow. Thus, this light source will not be taken account into the pixel's color.
 
