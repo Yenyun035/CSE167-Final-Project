@@ -136,7 +136,7 @@ Before viewing the actual results of ray tracing, let's see the image produced t
 
 ![Image rendered with rasterization](./scene-rast.png)
 
-Emmm...It looks really boring. In fact, the left rectangular object has a ceramic material and the right is silver. Now let's get into ray tracing.
+Emmm...It looks really boring, but it still has a certain level of shading. In fact, the left rectangular object has a ceramic material and the right is silver. Now let's get into ray tracing.
 
 The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For this project, the window size (i.e. image size) is 500 width x 375 height. Our scene includes a small table with two rectangular objects on it. The following images are the results with different sample sizes and recursion depths:
 
