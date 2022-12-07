@@ -18,17 +18,17 @@ To implement a ray tracer, first it is necessary to define **object** in terms o
 When the light hits an object, it will scattered and reflected to different directions. If any of the scattered or reflected light rays reaches a receiver, aka a camera or an eye, the receiver will **see** the object. This is the physics of how the 3D world is seen as a 2D image by the eye or the camera. Ray tracing algorithm leverages this physics rule to render an image based on a 3D scene. But instead of simulating light from light source to the eye, it traces a light ray from the eye to the object.
 
 ### Ray Through Pixel
-First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it need the *location of the pixel in the image plane ($\alpha$, $\beta$)*, *field of view y-axis (fovy)*, *aspect ratio (a)* and *center of the camera*.
+First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it need the *location of the pixel in the image plane*($\alpha$, $\beta$), *field of view y-axis (fovy)*, *aspect ratio (a)* and *center of the camera*.
 
 If everything is in the camera coordinate, then the *center of the camera* is easily defined as a position vector (0,0,0). *fovy* is given as a property of the camera. *a* is $\frac{image width}{image height}$ which is also given by the camera.
 
-Now what left is *($\alpha$, $\beta$)*. This is depend on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
+Now what left is ($\alpha$, $\beta$). This is depend on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
 
-$\alpha$, $\beta$ = $2 * \frac{i + 0.5}{image width} - 1, 1 - 2*\frac{j + 0.5}{image height}$
+$\alpha$, $\beta$ = $2 \* \frac{i + 0.5}{image width} - 1, 1 - 2 \* \frac{j + 0.5}{image height}$
 
 ![center of pixel](./center-of-pixel.png)
 
-In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source =(0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determine the image plane's height to be $2*tan(\frac{fovy}{2})$ and width to be $2 * a * tan(\frac{fovy}{2})$. Therefore, the ray pass the position ($\alpha * a * tan(\frac{fovy}{2})$, $\beta * tan(\frac{fovy}{2}), -1$) (z-axis increase to the back of the camera), which indicate that the direction of the ray is normalized vector ($\alpha * a * tan(\frac{fovy}{2})$, $\beta * tan(\frac{fovy}{2}), -1$).
+In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source =(0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determine the image plane's height to be $2 \* tan(\frac{fovy}{2})$ and width to be $2 \* a \*tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \* a \* tan(\frac{fovy}{2}), \beta \* tan(\frac{fovy}{2}), -1)$ (z-axis increase to the back of the camera), which indicate that the direction of the ray is vector $normalize(\alpha \* a \* tan(\frac{fovy}{2}), \beta \* tan(\frac{fovy}{2}), -1)$.
 
 ![ray through pixel](./ray-through-pixel.png)
 
@@ -73,7 +73,7 @@ Specular reflection in the ray tracer will be explained in the later section.
 
 ### Shadow
 
-Upon this point, the ray tracer knows which object the pixel might seen. However, this nearest object could be in shadow casted by other objects. Therefore, the second ray is shoot from the location of the hit to all the light sources. The source of the second ray source is the *hit location (q)*, the direction of the second ray is defined as $normalize(l_i - q)$ where *$l_i$* is ith light's source location.
+Upon this point, the ray tracer knows which object the pixel might seen. However, this nearest object could be in shadow casted by other objects. Therefore, the second ray is shoot from the location of the hit to all the light sources. The source of the second ray source is the *hit location (q)*, the direction of the second ray is defined as $normalize(l_i - q)$ where $l_i$ is ith light's source location.
 
 If the second ray hits an object, aka an object impeding the light from the light source, then the nearest object is in shadow. Thus, this light source will not be taken account into the pixel's color. In this case, the *visibility* is recorded as 0.
 
