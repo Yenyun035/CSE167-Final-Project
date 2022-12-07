@@ -75,11 +75,11 @@ Specular reflection in the ray tracer will be explained in the later section.
 
 Upon this point, the ray tracer knows which object the pixel might seen. However, this nearest object could be in shadow casted by other objects. Therefore, the second ray is shoot from the location of the hit to all the light sources. The source of the second ray source is the *hit location (q)*, the direction of the second ray is defined as $normalize(l_i - q)$ where *$l_i$* is ith light's source location.
 
-If the second ray hits an object, aka an object impeding the light from the light source, then the nearest object is in shadow. Thus, this light source will not be taken account into the pixel's color.
+If the second ray hits an object, aka an object impeding the light from the light source, then the nearest object is in shadow. Thus, this light source will not be taken account into the pixel's color. In this case, the *visibility* is recorded as 0.
 
 ![Ray Tracer Mechanism Diagram - Light Unreachable](./ray-tracing2.png)
 
-On the opposite, if the second ray successfully reaches the light, then the properties of materials and lights can be used to calculate the pixel's color.
+On the opposite, if the second ray successfully reaches the light, then the properties of materials and lights can be used to calculate the pixel's color. In this case, the *visibility* is recorded as 1.
 
 ![Ray Tracer Mechanism Diagram - Light reachable](./ray-tracing.png)
 
