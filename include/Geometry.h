@@ -23,9 +23,16 @@ we do not need to manually allocate/free the memory for
 arrays of unknown size.
 *****************************************************/
 #include <vector>
+#include <glm/glm.hpp>
+#include "Material.h"
+#include "Triangle.h"
 
 #ifndef __GEOMETRY_H__
 #define __GEOMETRY_H__
+
+using namespace glm;
+
+
 
 class Geometry {
 public:
@@ -34,6 +41,9 @@ public:
     GLenum type = GL_UNSIGNED_INT; // type of the index array
     GLuint vao; // vertex array object a.k.a. geometry spreadsheet
     std::vector<GLuint> buffers; // data storage
+
+    // triangle soup (pointer or obj?)
+    std::vector<Triangle> tri_soup;
     
     virtual void init(){};
     virtual void init(const char* s){};

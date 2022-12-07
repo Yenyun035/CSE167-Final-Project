@@ -71,10 +71,7 @@ void Scene::draw(void){
         for ( size_t i = 0; i < cur -> models.size(); i++ ){
             // Prepare to draw the geometry. Assign the modelview and the material.
             
-            /**
-             * TODO: (HW3 hint: you should do something here)
-             * update corresponding VM
-             */
+            // update corresponding VM
             glm::mat4 new_VM = cur_VM * cur-> modeltransforms[i];
             shader -> modelview = new_VM; // TODO: HW3: Without updating cur_VM, modelview would just be camera's view matrix.
             shader -> material  = ( cur -> models[i] ) -> material;
@@ -87,16 +84,12 @@ void Scene::draw(void){
         // Continue the DFS: put all the child nodes of the current node in the stack
         for ( size_t i = 0; i < cur -> childnodes.size(); i++ ){
             dfs_stack.push( cur -> childnodes[i] );
-            /**
-             * TODO: (HW3 hint: you should do something here)
-             * push vm corresponding to the childnode to vm stack
-             */
+      
+            // push vm corresponding to the childnode to vm stack
             matrix_stack.push(cur_VM * cur -> childtransforms[i]);
         }
         
     } // End of DFS while loop.
-    // HW3: Your code will only be above this line.
-    
 }
 
 
