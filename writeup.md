@@ -132,6 +132,12 @@ Note: Our implementation does not accommodate the use of keyboard for real-time 
 
 ## Demonstration of Results
 
+Before viewing the actual results of ray tracing, let's see the image produced through rasterization:
+
+![Image rendered with rasterization](./scene-rast.png)
+
+Emmm...It looks really boring. In fact, the left rectangular object has a ceramic material and the right is silver. Now let's get into ray tracing.
+
 The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For this project, the window size (i.e. image size) is 500 width x 375 height. Our scene includes a small table with two rectangular objects on it. The following images are the results with different sample sizes and recursion depths:
 
 1. Sample Size = 3 & Recursion Depth = 1
@@ -161,6 +167,12 @@ From the above three images with the same sample number = 3 but different recurs
 ![Image rendered with Sample Size as 30 and Recursion Depth as 1](./s30r1.png)
 
 On the other hand, as the sample size increases, the smoothness of the objects in the scene has improved as there are less and less ragged pixels at their edges.
+
+The above images are good for demonstrating the effect of shading. For the mirror reflection, we built another scene:
+
+![Image with spheres rendered with Sample Size as 3 and Recursion Depth as 5](./sphere-s3r5.png)
+
+As there are much more triangles for spheres in comparison to cubes, we did not construct the scene with a large sample size since it would take a long time rendering. The left sphere (or egg) has a turquoise material and the right one is silver. As you can see, the mirror reflection of the table is clearly shown on the left sphere and the bottom of the right sphere.
 
 ## Reference
 1. Ray Tracing Writeup
