@@ -18,30 +18,30 @@ To implement a ray tracer, first it is necessary to define **object** in terms o
 When the light hits an object, it will scattered and reflected to different directions. If any of the scattered or reflected light rays reaches a receiver, aka a camera or an eye, the receiver will **see** the object. This is the physics of how the 3D world is seen as a 2D image by the eye or the camera. Ray tracing algorithm leverages this physics rule to render an image based on a 3D scene. But instead of simulating light from light source to the eye, it traces a light ray from the eye to the object.
 
 ### Ray Through Pixel
-First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it need the *location of the pixel in the image plane*($\alpha$, $\beta$), *field of view y-axis (fovy)*, *aspect ratio (a)* and *center of the camera*.
+First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it needs the *location of the pixel in the image plane*($\alpha$, $\beta$), *field of view y-axis (fovy)*, *aspect ratio (a)* and *center of the camera*.
 
-If everything is in the camera coordinate, then the *center of the camera* is easily defined as a position vector (0,0,0). *fovy* is given as a property of the camera. *a* is $\frac{image width}{image height}$ which is also given by the camera.
+If everything is in the camera coordinate, then the *center of the camera* is easily defined as a position vector (0,0,0). *fovy* is given as a property of the camera. *a* is $\frac{image \space width}{image \space height}$ which is also given by the camera.
 
-Now what left is ($\alpha$, $\beta$). This is depend on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
+Now what left is ($\alpha$, $\beta$). This depends on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
 
-$\alpha$, $\beta$ = $2 \* \frac{i + 0.5}{image width} - 1, 1 - 2 \* \frac{j + 0.5}{image height}$
+$\alpha$, $\beta$ = $2 \ast \frac{i + 0.5}{image \space width} - 1, 1 - 2 \ast \frac{j + 0.5}{image \space height}$
 
 ![center of pixel](./center-of-pixel.png)
 
-In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source =(0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determine the image plane's height to be $2 \* tan(\frac{fovy}{2})$ and width to be $2 \* a \*tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \* a \* tan(\frac{fovy}{2}), \beta \* tan(\frac{fovy}{2}), -1)$ (z-axis increase to the back of the camera), which indicate that the direction of the ray is vector $normalize(\alpha \* a \* tan(\frac{fovy}{2}), \beta \* tan(\frac{fovy}{2}), -1)$.
+In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source = (0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determines the image plane's height to be $2 \ast tan(\frac{fovy}{2})$ and width to be $2 \ast a \ast tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$ (z-axis increases to the back of the camera), which indicates that the direction of the ray is the vector $normalize(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$.
 
 ![ray through pixel](./ray-through-pixel.png)
 
-Now we defined the ray that going from the center of the camera to a specific pixel in the image plane.
+Now we defined the ray going from the center of the camera to a specific pixel in the image plane.
 
 ### Intersection
 Extending this light ray path, it might **hit** multiple objects in the scene. Among those hits, the **nearest** hit is the one which might scatter light from light source.
 
-To find such a hit, it is necessary to define what "object" looks like in the ray tracing algorithm. Each model included in the scene could be approximated by a triangle mesh. Therefore, after transform the location and the normal of every triangles from model's coordinate to camera's coordinate, we obtained a **triangle soup** as an aggregation of triangles from every models.
+To find such a hit, it is necessary to define what "object" looks like in the ray tracing algorithm. Each model included in the scene could be approximated by a triangle mesh. Therefore, after transforming the location and the normal of every triangles from the model coordinate to the camera coordinate, we obtained a **triangle soup** as an aggregation of triangles from every models.
 
-To find the **hit** of a particular light ray with the scene, we only need to iterate through every triangle in the **triangle soup** to check if the ray intersect with it. Among the hitted triangles, the one nearest to the camera is what the pixel might receive light from.
+To find the **hit** of a particular light ray with the scene, we only need to iterate through every triangle in the **triangle soup** to check if the ray intersects with it. Among the hitted triangles, the one nearest to the camera is what the pixel might receive light from.
 
-To find an intersection between a ray and a triangle, we need *three vertices of the triangle (p1, p2, p3)*, *three normal of each vertices of the triangle (n1, n2, n3)*, *ray source (p0)*, and *ray direction (d)*. 
+To find an intersection between a ray and a triangle, we need *three vertices of the triangle (p1, p2, p3)*, *three normals of each vertices of the triangle (n1, n2, n3)*, *ray source (p0)*, and *ray direction (d)*. 
 
 In barycentric coordinate, the *location of intersecting point (q)* is represented as an interpolation between three triangle vertices $q = \lambda_1 p_1 + \lambda_2 p_2 + \lambda_3 p_3$. Similary, the *normal of the intersecting point (n)* is represented as an interpolation between three triangle normals $n = normalize(\lambda_1 n_1 + \lambda_2 n_2 + \lambda_3 n_3)$.
 
@@ -49,25 +49,24 @@ To solve for $\lambda_1, \lambda_2, \lambda_3$, the following formula is used:
 
 ![Triangle intersection](./triangle-intersect.png)
 
-The $t$ in the formula indicate the distance between the hit and the camera center.
+The $t$ in the formula indicates the distance between the hit and the camera center (source of ray under the camera coordinate).
 
-Now we have find which is the nearest triangle, aka part of the object, will be hit by the light
-
+Now we have found which is the nearest triangle, aka part of the object, hit by the light.
 
 ### Triangle/Object material properties
 
-It is good to keep in mind that color is a combination of light properties and material properties. To define how a material surface reflect or scatter light, two major terms are used: 
+It is good to keep in mind that color is a combination of light properties and material properties. To define how a material surface reflects or scatters light, two major terms are used: 
 
-- Diffuse: in an ideal diffuse surface, light ray is scattered equally in all direction. It is independent of view direction. This property is significant on non-shiny materials such as wood.
-- Specular: in an ideal specular surface, the surface is prefectly smooth such that incoming light is bounced in a single direction, following the law that the angle of incidence equals to the angle of reflection. An example of specular light dominated material is mirror.
+- Diffuse: In an ideal diffuse surface, light ray is scattered equally in all directions. It is independent of view direction. This property is significant on non-shiny materials such as wood.
+- Specular: In an ideal specular surface, the surface is prefectly smooth such that incoming light is bounced in a single direction, following the law that the angle of incidence equals to the angle of reflection. An example of specular light dominated material is a mirror.
 
 ### Diffuse Reflection
 
 In this implementation of ray tracer, diffuse reflection is modeled as the diffuse intensity in *Phong Shading Model*. 
 
-$R_{diffuse} = C_{diffuse} * L * max(n \cdot l, 0)$
+$R_{diffuse} = C_{diffuse} \ast L \ast max(n \cdot l, 0)$
 
-Where $L$ is light intensity, $n$ is the surface normal (of triangle), $l$ is the light direction, and $R_{diffuse}$ is the reflected diffuse color seen by the viewer. Since the diffuse light is independent of view direction, $R_{diffuse}$ is independent of center of the camera.
+Where $L$ is light intensity, $n$ is the surface normal (of triangle), $l$ is the light direction, and $R_{diffuse}$ is the reflected diffuse color seen by the viewer. Since the diffuse light is independent of view direction, $R_{diffuse}$ is independent of the center of the camera.
 
 Specular reflection in the ray tracer will be explained in the later section.
 
@@ -93,17 +92,17 @@ Therefore, besides the second ray to light source, another ray called **reflecti
 
 ![Ray Tracer Mechanism Diagram - Mirror Reflection](./mirror-ref.png)
 
-Since the reflective ray is shoot from the hit location, the source of the reflective ray is the *hit location (p)*. According to the law of incidence and reflectance angle, the *mirror reflection direction (r)* is defined as: $r = 2(n \cdot v) n - v$. $n$ is the surface normal of the triangle, $v$ is the incoming ray (the ray through pixel) direction.
+Since the reflective ray is shoot from the hit location, the source of the reflective ray is the *hit location (p)*. According to the law of incidence and reflectance angle, the *mirror reflection direction (r)* is defined as: $r = 2(n \cdot v) n - v$ where $n$ is the surface normal of the triangle and $v$ is the incoming ray (the ray through pixel) direction.
 
 The specular reflection is calculated as $C_{specular} L_{(p,r)}$, where $L_{(p,r)}$ is the color seen by ray (p, r).
 
-As seen in the formula, the term $L_{(p,r)}$ is naturally a recursive term. The above image only tells one reflection. In case of multiple reflection
+As seen in the formula, the term $L_{(p,r)}$ is naturally a recursive term. The above image only tells one reflection. In case of multiple reflections:
 
 ![Recursive Mirror Reflection](./recursive-mirror.jpg)
 
 ### Overall Shading Model
 
-The overall shading model combines both diffuse and recursive specular reflection. It is modeled as:
+The overall shading model combines both diffuse and recursive specular reflections. It is modeled as:
 
 $L_{seen} = (\sum_{i \in lights} C_{diffuse} * L_{light source_i} * max(n \cdot l_i, 0) * visibility_i) + C_{specular}*L_{(p,r)}$
 
@@ -131,9 +130,9 @@ In `main.cpp`, `display` function is changed such that it initializes the scene,
 
 Note: Our implementation does not accommodate the use of keyboard for real-time rendering. Please refer to the first rendered image in the window as the final result of the ray tracing.
 
-# Recursive diffuse not good. Old school diffuse works for now.
-
 ## Demonstration of Results
+
+The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For our project, we first tried 
 
 ## Reference
 1. Ray Tracing Writeup
