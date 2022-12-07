@@ -28,6 +28,8 @@ $\alpha$, $\beta$ = $2 \ast \frac{i + 0.5}{image \space width} - 1, 1 - 2 \ast \
 
 ![center of pixel](./center-of-pixel.png)
 
+Note that here the ray assume to go through the center of the pixel. An alternative way is to randomly choose a $i_r = [i, i+1)$ and a $j_r = [j, j+1)$ and replace $i$ and $j$ in the above formula with $i_r$ and $j_r$. If we repeat this random process multiple times, the pixel color will be the average of the resulting colors. In the demonstration, we mostly adopted this method. But we also provide an example of "ray through center of the pixel" method.
+
 In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source = (0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determines the image plane's height to be $2 \ast tan(\frac{fovy}{2})$ and width to be $2 \ast a \ast tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$ (z-axis increases to the back of the camera), which indicates that the direction of the ray is the vector $normalize(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$.
 
 ![ray through pixel](./ray-through-pixel.png)
@@ -138,7 +140,7 @@ Before viewing the actual results of ray tracing, let's see the image produced t
 
 Emmm...It looks really boring, but it still has a certain level of shading. In fact, the left rectangular object has a ceramic material and the right is silver. Now let's get into ray tracing.
 
-The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For this project, the window size (i.e. image size) is 500 width x 375 height. Our scene includes a small table with two rectangular objects on it. The following images are the results with different sample sizes and recursion depths:
+The quality of reflection, smoothness, and resolution of a rendered image depends on the sample size and the recusion depth. For this project, the window size (i.e. image size) is 500 width x 375 height. Our scene includes a small table with two rectangular objects on it. The only lighting invovled is the "sun" which has location (3.0f, 2.0f, 1.0f, 0.0f) at distance equal to infinity. The following images are the results with different sample sizes and recursion depths:
 
 1. Sample Size = 3 & Recursion Depth = 1
 
@@ -166,13 +168,27 @@ From the above three images with the same sample number = 3 but different recurs
 
 ![Image rendered with Sample Size as 30 and Recursion Depth as 1](./s30r1.png)
 
+7. Sample Size = 30 & Recursion Depth = 3
+
+![Image rendered with Sample Size as 30 and Recursion Depth as 3](./s30r3.png)
+
 On the other hand, as the sample size increases, the smoothness of the objects in the scene has improved as there are less and less ragged pixels at their edges.
+
+8. "Ray through center of the pixel" Sampling & Recursion Depth = 3
+
+![Image rendered with one sample through center of the pixel and Recursion Depth as 3](./centerr3.png)
+
+This is a demonstration of the alternative ray through pixel method described in the Underlying Secrets - Ray Through Pixel section.
 
 The above images are good for demonstrating the effect of shading. For the mirror reflection, we built another scene:
 
 ![Image with spheres rendered with Sample Size as 3 and Recursion Depth as 5](./sphere-s3r5.png)
 
 As there are much more triangles for spheres in comparison to cubes, we did not construct the scene with a large sample size since it would take a long time rendering. The left sphere (or egg) has a turquoise material and the right one is silver. As you can see, the mirror reflection of the table is clearly shown on the left sphere and the bottom of the right sphere.
+
+![Image with sphere and cube rendered with one sample through center of the pixel and Recursion Depth as 3](./sphere-cube.png)
+
+We also made a image with both sphere and cube to compare their reflective properties. The left sphere has a ceramic material and the right cube has a silver material. In the image, you can see the cube's shadow and reflection and the table corner's reflection casting on the sphere. Whereas the sphere's reflection casting on the cube is hiden behind the cube. The cubic shadow on the top of the sphere is because of the bulb. But because bulb has diffuse color as (0.0f, 0.0f, 0.0f) and our model do not include ambient and emision, the bulb does not show up in the image.
 
 ## Reference
 1. Ray Tracing Writeup
