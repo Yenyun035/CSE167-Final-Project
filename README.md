@@ -9,10 +9,6 @@ Ray Tracing is an image rendering technique that provides photorealism. In compa
 
 ----
 
-### Representing object as triangles
-To implement a ray tracer, first it is necessary to define **object** in terms of the ray tracer algorithm. 
-
-
 ## Underlying Secrets
 
 ### Mechanism of **seeing** an object
@@ -20,11 +16,11 @@ To implement a ray tracer, first it is necessary to define **object** in terms o
 When the light hits an object, it will scattered and reflected to different directions. If any of the scattered or reflected light rays reaches a receiver, aka a camera or an eye, the receiver will **see** the object. This is the physics of how the 3D world is seen as a 2D image by the eye or the camera. Ray tracing algorithm leverages this physics rule to render an image based on a 3D scene. But instead of simulating light from light source to the eye, it traces a light ray from the eye to the object.
 
 ### Ray Through Pixel
-First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it needs the *location of the pixel in the image plane*($\alpha$, $\beta$), *field of view y-axis (fovy)*, *aspect ratio (a)* and *center of the camera*.
+First, ray tracer simulates a light path from the eye to an pixel in the image plane. To do so, it needs the *location of the pixel in the image plane* ($\alpha$, $\beta$), *field of view y-axis* (fovy), *aspect ratio* (a) and *center of the camera*.
 
 If everything is in the camera coordinate, then the *center of the camera* is easily defined as a position vector (0,0,0). *fovy* is given as a property of the camera. *a* is $\frac{image \space width}{image \space height}$ which is also given by the camera.
 
-Now what left is ($\alpha$, $\beta$). This depends on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
+Now what left is $\alpha$, $\beta$. This depends on which pixel we want the ray to go through. Let such pixel be at *(i, j)* location on the image plane. The center of the pixel in normalized device coordinate is then defined as: 
 
 $\alpha$, $\beta$ = $2 \ast \frac{i + 0.5}{image \space width} - 1, 1 - 2 \ast \frac{j + 0.5}{image \space height}$
 
@@ -32,7 +28,7 @@ $\alpha$, $\beta$ = $2 \ast \frac{i + 0.5}{image \space width} - 1, 1 - 2 \ast \
 
 Note that here the ray assume to go through the center of the pixel. An alternative way is to randomly choose a $i_r = [i, i+1)$ and a $j_r = [j, j+1)$ and replace $i$ and $j$ in the above formula with $i_r$ and $j_r$. If we repeat this random process multiple times, the pixel color will be the average of the resulting colors. In the demonstration, we mostly adopted this method. But we also provide an example of "ray through center of the pixel" method.
 
-In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source = (0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determines the image plane's height to be $2 \ast tan(\frac{fovy}{2})$ and width to be $2 \ast a \ast tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$ (z-axis increases to the back of the camera), which indicates that the direction of the ray is the vector $normalize(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$.
+In the camera coordinate, a ray from camera to $\alpha$, $\beta$ will have source = (0,0,0). Assume the distance between camera and the image plane is 1, the intrinsic property of the camera determines the image plane's height to be $2 \ast tan(\frac{fovy}{2})$ and width to be $2 \ast a \ast tan(\frac{fovy}{2})$. Therefore, the ray pass the position $(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$ (z-axis point toward the back of the camera), which indicates that the direction of the ray is the vector $normalize(\alpha \ast a \ast tan(\frac{fovy}{2}), \beta \ast tan(\frac{fovy}{2}), -1)$.
 
 ![ray through pixel](./ray-through-pixel.png)
 
